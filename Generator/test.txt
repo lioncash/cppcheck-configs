@@ -1,0 +1,30 @@
+; excluded comment test
+
+
+# Included comment test
+Fn Name
+pure
+const
+li
+ur
+rv int
+nr f
+1 fmt nb nn nu s
+2 fmt{scanf} nb nn nu s
+
+def name 3
+def escape (1 << 3)
+
+pod name1 s 8
+pod name2 u 16
+pod name3 16
+pod name4 s
+
+mem
+  alloc alloc_mem
+  alloc init alloc_mem_init
+  dealloc free_mem
+
+res
+  alloc init open_system_resource
+  dealloc free_system_resource
