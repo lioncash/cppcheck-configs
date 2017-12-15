@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import enum
 import os
 import regex
@@ -12,9 +10,8 @@ import xml.sax.saxutils
 regex.DEFAULT_VERSION = regex.VERSION1
 
 """
-A file that converts shorthand, that for the sake
-of slapping a silly name on it, called SKIT
-(Short Keyboard-operated InterText),
+A file that converts shorthand that I call SKIT
+(Short Keyboard-operated InterText)
 into a valid cppcheck equivalent XML file.
 
 The syntax of the 'language' this file expects is quite simple,
@@ -440,13 +437,9 @@ class Parser:
 
     # Creates a <returnValue> tag for a function
     def compose_return_value_string(self, line: str) -> str:
-        tokens = line.split(" ")
+        tokens = line.split(" ", maxsplit=1)
         if len(tokens) < 2:
             raise ParseError("Malformed function return value tag '{}'. Missing return type.".format(line))
-        if len(tokens) > 2:
-            expected_str = tokens[0] + " " + tokens[1]
-            raise ParseError("Excess arguments in a return type tag. Expected '{}' but saw '{}'."
-                             .format(expected_str, line))
 
         return "<returnValue type=\"{}\">\n".format(tokens[1])
 
@@ -542,7 +535,7 @@ class Parser:
     # Creates an argument string for a function definition
     def compose_argument_string(self, line: str) -> str:
         tokens = line.split(" ")
-        argument = "<arg nr=\"{}\"".format(tokens[0])
+        argument = "<arg nr=\"{}\">".format(tokens[0])
         for token in tokens[1:]:
             attribute_type = determine_argument_attribute_type(token)
             if attribute_type == ArgumentAttributeType.FORMAT_STR:
