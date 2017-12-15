@@ -91,7 +91,7 @@ Which is equivalent to:
 A 'v' tag is used to specify a range restriction on a numeric
 argument to a function. Each range is comma-separated. For example,
 if we wanted to indicate that an parameter may only have values between
-0 to 10, this can be done like so:
+0 to 10 inclusive (on both ends of the range), this can be done like so:
 
 v{0:10}
 
@@ -105,6 +105,22 @@ For example, assume an argument can only be within 0 to 10, or be 15 this is spe
 like:
 
 v{0:10,15}
+
+To specify that a value may be from a certain value, to the end of the range
+of the argument's type, this can be specified by not providing a value on
+one side of a colon like so:
+
+v{:10} 
+
+which indicates "the value must be in the range from whatever the min value of the
+type is (inclusive) to 10 (inclusive)"
+
+or
+
+v{10:}
+
+which indicates "the value must in the range from 10 (inclusive) to whatever the
+max value of the type is (inclusive)"
 
 Note: a newline must follow a function specification in order to end it.
       the only exception to this is if a function specification is at the
