@@ -38,6 +38,9 @@ contexts:
     - match: '({{identifier}})(?=\()'
       scope: entity.name.define.sk
       pop: true
+    - match: '{{identifier}}'
+      scope: entity.name.define.sk
+      pop: true
 
   function:
     - match: '^(?i)\bfn\b'
