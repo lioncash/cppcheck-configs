@@ -1,0 +1,91 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: SKIT
+file_extensions:
+  - sk
+scope: source.sk
+
+variables:
+  identifier: '\b[[:alpha:]_][[:alnum:]_]*\b'
+
+contexts:
+  # The prototype context is prepended to all contexts but those setting
+  # meta_include_prototype: false.
+  prototype:
+    - include: comments
+
+  main:
+    # The main context is the initial starting point of our syntax.
+    # Include other contexts from here (or specify them directly).
+    - include: keywords
+    - include: numbers
+    - include: strings
+    - include: define
+    - include: function
+    - include: podtype
+
+  keywords:
+    - match: '^(?i)\b(mem|res)\b'
+      scope: keyword.control.sk
+
+  define:
+    - match: '^(?i)\bdef\b'
+      scope: keyword.other.define.sk
+      push: define_name
+
+  define_name:
+    - match: '({{identifier}})(?=\()'
+      scope: entity.name.define.sk
+      pop: true
+
+  function:
+    - match: '^(?i)\bfn\b'
+      scope: keyword.function.sk
+      push: function_name
+
+  # TODO: It'd be nice to also match against the supplied arguments
+  function_name:
+    - match: '{{identifier}}'
+      scope: entity.name.function.sk
+      pop: true
+
+  podtype:
+    - match: '^(?i)\bpod\b'
+      scope: keyword.other.podtype.sk
+      push: podtype_name
+
+  # TODO: It'd be nice to also match against the supplied arguments
+  podtype_name:
+    - match: '{{identifier}}'
+      scope: entity.name.podtype.sk
+      pop: true
+
+  numbers:
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric.sk
+
+  strings:
+    # Strings begin and end with quotes, and use backslashes as an escape
+    # character.
+    - match: '"'
+      scope: punctuation.definition.string.begin.sk
+      push: inside_string
+
+  inside_string:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.double.sk
+    - match: '\.'
+      scope: constant.character.escape.sk
+    - match: '"'
+      scope: punctuation.definition.string.end.sk
+      pop: true
+
+  comments:
+    # Comments begin with a ';' or '#' and finish at the end of the line.
+    - match: '(;|#)'
+      scope: punctuation.definition.comment.sk
+      push:
+        - meta_scope: comment.line.double-slash.sk
+        - match: $\n?
+          pop: true
