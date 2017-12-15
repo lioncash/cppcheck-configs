@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import enum
 import os
 import regex
@@ -10,9 +12,9 @@ import xml.sax.saxutils
 regex.DEFAULT_VERSION = regex.VERSION1
 
 """
-A file that converts shorthand that I call SKIT
-(Short Keyboard-operated InterText)
-into a valid cppcheck equivalent XML file.
+A file that converts shorthand, that for the sake
+of slapping a silly name on it, called SKIT
+(Short Keyboard-operated InterText),
 
 The syntax of the 'language' this file expects is quite simple,
 as it parses on a line-by-line basis with the starting character
