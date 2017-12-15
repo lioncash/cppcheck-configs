@@ -65,6 +65,7 @@ Function arguments can have the following tags:
 - nn (not null)
 - nu (not uninitialized)
 - s  (null-terminated string)
+- v{comma-separated ranges} (valid ranges for a numeric argument)
 
 For example, a function can be like:
 
@@ -73,7 +74,7 @@ Fn Name
    ur
    rv int
    nr f
-   1 nb nn nu
+   1 nb nn nu v{0:10}
    2 fmt{scanf} min{argvalue,1} nn nu s
 
 Which is equivalent to:
@@ -83,9 +84,27 @@ Which is equivalent to:
   <use-retval/>
   <returnValue type="int"/>
   <noreturn>false</noreturn>
-  <arg nr="1"><not-bool/><not-null/><not-uninit/></arg>
+  <arg nr="1"><not-bool/><not-null/><not-uninit/><valid>0:10</valid></arg>
   <arg nr="2"><formatstr type="scanf"/><minsize type="argvalue" arg="1"/><not-null/><not-uninit/><strz/><arg/>
 </function>
+
+A 'v' tag is used to specify a range restriction on a numeric
+argument to a function. Each range is comma-separated. For example,
+if we wanted to indicate that an parameter may only have values between
+0 to 10, this can be done like so:
+
+v{0:10}
+
+Now assume that an argument has two valid ranges that it may fall within,
+say 0 to 10, or 50 to 60; this is specified like so:
+
+v{0:10,50:60}
+
+If an allowed value isn't part of a range, then the colon just needs to be omitted.
+For example, assume an argument can only be within 0 to 10, or be 15 this is specified
+like:
+
+v{0:10,15}
 
 Note: a newline must follow a function specification in order to end it.
       the only exception to this is if a function specification is at the
