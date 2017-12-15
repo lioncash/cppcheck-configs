@@ -665,7 +665,7 @@ class Parser:
 
     # Parses a define tag
     def parse_define(self, line: str) -> None:
-        tokens = line.split(" ", maxsplit=2)
+        tokens = line.split(maxsplit=2)
         tokens_len = len(tokens)
 
         if tokens_len < 3:
