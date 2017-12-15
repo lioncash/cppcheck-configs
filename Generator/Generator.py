@@ -680,7 +680,7 @@ class Parser:
         define_value = xml.sax.saxutils.escape(tokens[2], entities={
                 "'": "&apos;",
                 "\"": "&quot;"
-            })
+            }).strip()
 
         define_str = "{}<define name=\"{}\" value=\"{}\"/>\n" \
                      .format(Indentation.FUNCTION, define_name, define_value)
