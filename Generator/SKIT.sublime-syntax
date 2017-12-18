@@ -86,7 +86,7 @@ contexts:
 
   comments:
     # Comments begin with a ';' or '#' and finish at the end of the line.
-    - match: '(;|#)'
+    - match: '^\s*(;|#)'
       scope: punctuation.definition.comment.sk
       push:
         - meta_scope: comment.line.double-slash.sk
