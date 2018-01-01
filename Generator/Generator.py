@@ -622,7 +622,7 @@ class Parser:
             if line_type == AllocationLineType.EMPTY:
                 break
 
-            tokens = next_line.split(" ")
+            tokens = next_line.split()
             tokens_len = len(tokens)
 
             # Deduplicating this would be nice...
@@ -665,7 +665,7 @@ class Parser:
 
     # Parses a podtype definition tag
     def parse_podtype(self, line: str) -> None:
-        tokens = line.split(" ")
+        tokens = line.split()
         tokens_len = len(tokens)
 
         if tokens_len < 2:
