@@ -478,7 +478,7 @@ class Parser:
         if len(tokens) < 2:
             raise ParseError("Malformed function return value tag '{}'. Missing return type.".format(line))
 
-        return "<returnValue type=\"{}\">\n".format(tokens[1])
+        return "<returnValue type=\"{}\"/>\n".format(tokens[1])
 
     # Creates a <noreturn> tag for a function
     def compose_noreturn_string(self, line: str) -> str:
