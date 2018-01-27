@@ -1,0 +1,2656 @@
+;
+; Shorthand file used to generate the libnx cppcheck file.
+;
+
+# - - - -
+# Defines
+# - - - -
+
+# result.h
+def R_SUCCEEDED(res)   ((res)==0)
+def R_FAILED(res)      ((res)!=0)
+def R_MODULE(res)      ((res)&0x1FF)
+def R_DESCRIPTION(res) (((res)>>9)&0x1FFF)
+def MAKERESULT(module,description) ((((module)&0x1FF)) | ((description)&0x1FFF)<<9)
+def MODULE_LIBNX 345
+
+# types.h
+def U64_MAX UINT64_MAX
+def BIT(n) (1U<<(n))
+def IGNORE_ARG(x) (void)(x)
+def ALIGN(m) __attribute__((aligned(m)))
+def PACKED   __attribute__((packed))
+def NORETURN __attribute__((noreturn))
+def INVALID_HANDLE ((Handle) 0)
+
+# gfx/binder.h
+def BINDER_FIRST_CALL_TRANSACTION 0x1
+
+# gfx/gfx.h
+def RGBA8(r,g,b,a)  (((r)&0xff)|(((g)&0xff)<<8)|(((b)&0xff)<<16)|(((a)&0xff)<<24))
+def RGBA8_MAXALPHA(r,g,b) RGBA8(r,g,b,0xff)
+
+# gfx/ioctl.h
+def _IOC_NRBITS   8
+def _IOC_TYPEBITS 8
+def _IOC_SIZEBITS 14
+def _IOC_DIRBITS  2
+
+def _IOC_NRMASK   ((1 << _IOC_NRBITS)-1)
+def _IOC_TYPEMASK ((1 << _IOC_TYPEBITS)-1)
+def _IOC_SIZEMASK ((1 << _IOC_SIZEBITS)-1)
+def _IOC_DIRMASK  ((1 << _IOC_DIRBITS)-1)
+
+def _IOC_NRSHIFT   0
+def _IOC_TYPESHIFT (_IOC_NRSHIFT+_IOC_NRBITS)
+def _IOC_SIZESHIFT (_IOC_TYPESHIFT+_IOC_TYPEBITS)
+def _IOC_DIRSHIFT  (_IOC_SIZESHIFT+_IOC_SIZEBITS)
+
+def _IOC_NONE  0U
+def _IOC_WRITE 1U
+def _IOC_READ  2U
+
+def _IOC(dir,type,nr,size) (((dir) << _IOC_DIRSHIFT) | ((type) << _IOC_TYPESHIFT) | ((nr) << _IOC_NRSHIFT) | ((size) << _IOC_SIZESHIFT))
+def _IO(type,nr)        _IOC(_IOC_NONE,(type),(nr),0)
+def _IOR(type,nr,size)  _IOC(_IOC_READ,(type),(nr),sizeof(size))
+def _IOW(type,nr,size)  _IOC(_IOC_WRITE,(type),(nr),sizeof(size))
+def _IOWR(type,nr,size) _IOC(_IOC_READ|_IOC_WRITE,(type),(nr),sizeof(size))
+
+def _IOC_DIR(nr)  (((nr) >> _IOC_DIRSHIFT) & _IOC_DIRMASK)
+def _IOC_TYPE(nr) (((nr) >> _IOC_TYPESHIFT) & _IOC_TYPEMASK)
+def _IOC_NR(nr)   (((nr) >> _IOC_NRSHIFT) & _IOC_NRMASK)
+def _IOC_SIZE(nr) (((nr) >> _IOC_SIZESHIFT) & _IOC_SIZEMASK)
+
+; TODO 
+;def __in 
+;def __out 
+;def __inout 
+
+# kernel/svc.h
+def CUR_PROCESS_HANDLE 0xFFFF8001
+def CUR_THREAD_HANDLE 0xFFFF8000
+
+# runtime/devices/console.h
+def CONSOLE_ESC(x) "\x1b[" #x
+def CONSOLE_RESET   CONSOLE_ESC(0m)
+def CONSOLE_BLACK   CONSOLE_ESC(30m)
+def CONSOLE_RED     CONSOLE_ESC(31;1m)
+def CONSOLE_GREEN   CONSOLE_ESC(32;1m)
+def CONSOLE_YELLOW  CONSOLE_ESC(33;1m)
+def CONSOLE_BLUE    CONSOLE_ESC(34;1m)
+def CONSOLE_MAGENTA CONSOLE_ESC(35;1m)
+def CONSOLE_CYAN    CONSOLE_ESC(36;1m)
+def CONSOLE_WHITE   CONSOLE_ESC(37;1m)
+
+def CONSOLE_COLOR_BOLD    (1<<0)
+def CONSOLE_COLOR_FAINT   (1<<1)
+def CONSOLE_ITALIC        (1<<2)
+def CONSOLE_UNDERLINE     (1<<3)
+def CONSOLE_BLINK_SLOW    (1<<4)
+def CONSOLE_BLINK_FAST    (1<<5)
+def CONSOLE_COLOR_REVERSE (1<<6)
+def CONSOLE_CONCEAL       (1<<7)
+def CONSOLE_CROSSED_OUT   (1<<8)
+
+# runtime/devices/fs_dev
+def FSDEV_DIRITER_MAGIC 0x66736476
+
+# services/bsd.h
+def BSD_AF_INET  2
+def BSD_AF_INET6 10
+
+def BSD_IPPROTO_IP  0
+def BSD_IPPROTO_TCP 6
+def BSD_IPPROTO_UDP 17
+
+def BSD_SOCK_STREAM 1
+def BSD_SOCK_DGRAM  2
+
+def BSD_MSG_RECV_ALL 0x40
+
+# services/fs.h
+def FS_MAX_PATH 0x301
+def FS_MOUNTSAVEDATA_INVAL_DEFAULT 0x1
+def FS_SAVEDATA_CURRENT_TITLEID 0
+def FS_SAVEDATA_USERID_COMMONSAVE 0
+
+# services/usb.h
+def USBDS_DEFAULT_InterfaceNumber 0x4
+def USB_DT_INTERFACE_SIZE 9
+def USB_DT_ENDPOINT_SIZE  7
+
+# - - -
+# Types
+# - - -
+
+# ipc.h
+pod DomainMessageHeader
+pod IpcBufferDescriptor
+pod IpcCommand
+pod IpcParsedCommand
+pod IpcStaticSendDescriptor
+
+# types.h
+pod s8   s 1
+pod s16  s 2
+pod s32  s 4
+pod s64  s 8
+
+pod u8   u 1
+pod u16  u 2
+pod u32  u 4
+pod u64  u 8
+pod u128 u 16
+
+pod vs8  s 1
+pod vs16 s 2
+pod vs32 s 4
+pod vs64 s 8
+
+pod vu8  u 1
+pod vu16 u 2
+pod vu32 u 4
+pod vu64 u 8
+
+pod Handle u 4
+pod Result u 4
+pod ThreadFunc
+pod voidfn
+pod Permission s
+
+# gfx/binder.h
+pod Binder
+
+# gfx/buffer_producer.h
+pod bufferProducerFence
+pod bufferProducerGraphicBuffer
+pod bufferProducerQueueBufferInput
+pod bufferProducerQueueBufferOutput
+pod bufferProducerRect
+
+# gfx/nvioctl.h
+pod gpu_characteristics
+pod nvioctl_fence
+pod nvioctl_gpfifo_entry
+pod nvioctl_l2_state
+pod nvioctl_va_region
+
+# gfx/parcel.h
+pod Parcel
+
+# kernel/jit.h
+pod Jit
+pod JitType s
+
+# kernel/mutex.h
+pod Mutex
+pod RMutex
+
+# kernel/rwlock.h
+pod RwLock
+
+# kernel/shmem.h
+pod SharedMemory
+
+# kernel/svc.h
+pod JitMapOperation s
+pod MemoryInfo
+pod SecmonArgs
+
+# kernel/thread.h
+pod Thread
+
+# kernel/tmem.h
+pod TransferMemory
+
+# runtime/env.h
+pod LoaderReturnFn
+
+# runtime/devices/console.h
+pod ConsoleFont
+pod ConsolePrint
+pod debugDevice
+pod PrintConsole
+
+# runtime/devices/fs_dev.h
+pod fsdev_dir_t
+
+# services/applet.h
+pod AppletHookCookie
+pod AppletHookFn
+pod AppletHookType s
+pod AppletOperationMode s
+pod AppletType s
+
+# services/bsd.h
+pod BsdConfig s
+
+# services/fs.h
+pod FsContentStorageId s
+pod FsDir
+pod FsDirectoryEntry
+pod FsDirectoryFlags s
+pod FsEntryType s
+pod FsFile
+pod FsFileFlags s
+pod FsFileSystem
+pod FsSave
+pod FsStorage
+
+# services/hid.h
+pod HidController
+pod HidControllerColorDescription s
+pod HidControllerConnectionState s
+pod HidControllerHeader
+pod HidControllerID s
+pod HidControllerInputEntry
+pod HidControllerKeys s
+pod HidControllerLayout
+pod HidControllerLayoutHeader
+pod HidControllerLayoutType s
+pod HidControllerMAC
+pod HidControllerType s
+pod HidKeyboard
+pod HidKeyboardEntry
+pod HidKeyboardHeader
+pod HidKeyboardModifier s
+pod HidKeyboardScancode s
+pod HidMouse
+pod HidMouseButton s
+pod HidMouseEntry
+pod HidMouseHeader
+pod HidSharedMemory
+pod HidTouchScreen
+pod HidTouchScreenEntryHeader
+pod HidTouchScreenEntryTouch
+pod HidTouchScreenHeader
+pod touchPosition
+
+# services/nv.h
+pod nvServiceType s
+
+# services/sm.h
+pod Service
+pod ServiceType
+
+# services/usb.h
+pod UsbComplexId s
+pod usbDsDeviceInfo
+pod UsbDsEndpoint
+pod UsbDsInterface
+pod usbDsReportData
+pod usbDsReportEntry
+
+# services/vi.h
+pod ViDisplay
+pod ViLayer
+pod ViLayerFlags s
+pod ViScalingMode s
+pod ViServiceType s
+
+# - - - - -
+# Functions
+# - - - - -
+
+# arm/cache.h
+fn armDCacheClean,armDCacheFlush,armICacheInvalidate,armDCacheZero
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+
+# arm/tls.h
+fn armGetTls
+  ur
+  rv void*
+  nr f
+
+# ipc.h
+fn ipcInitialize
+  li
+  rv void
+  nr f
+  1 nb nn
+
+fn ipcAddSendBuffer
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn ipcAddRecvBuffer
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn ipcAddTransferBuffer
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn ipcAddSendStatic
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn ipcAddRecvStatic
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn ipcSendPid
+  li
+  rv void
+  nr f
+  1 nb nn
+
+fn ipcSendHandleCopy,ipcSendHandleMove
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu
+
+fn ipcPrepareHeader
+  li
+  ur
+  rv void*
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+
+fn ipcDispatch
+  ur
+  rv Result
+  nr f
+  1 nb nu
+
+fn ipcParse
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn ipcQueryPointerBufferSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn
+
+fn ipcPrepareHeaderForDomain
+  li
+  ur
+  rv void*
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+
+fn ipcParseForDomain
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+# gfx/binder.h
+fn binderCreateSession
+  li
+  rv void
+  nr f
+  1 nb nn
+  2 nb nu
+  3 nb nu
+
+fn binderInitSession
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+
+fn binderExitSession
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn binderTransactParcel,_binderTransactParcel,_binderTransactParcelAuto
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nu min{argvalue,4}
+  4 nb nu v{0:}
+  5 nb nu min{argvalue,6}
+  6 nb nu v{0:}
+  7 nb nu v{0:}
+
+fn binderAdjustRefcount
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu
+  3 nb nu
+
+fn binderGetNativeHandle
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn
+
+# gfx/buffer_producer.h
+fn bufferProducerInitialize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn bufferProducerExit
+  rv void
+  nr f
+
+fn bufferProducerRequestBuffer
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb
+
+fn bufferProducerDequeueBuffer
+  li
+  ur
+  rv Result
+  1 nu
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu
+  5 nb nu v{0:}
+  6 nb nn
+  7 nb
+
+fn bufferProducerDetachBuffer
+  ur
+  rv Result
+  nr f
+  1 nb nu
+
+fn bufferProducerQueueBuffer
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb
+  3 nb
+
+fn bufferProducerQuery
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn
+
+fn bufferProducerConnect
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nu
+  3 nb
+
+fn bufferProducerDisconnect
+  rv Result
+  nr f
+  1 nb nu
+
+fn bufferProducerGraphicBufferInit
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb
+
+# gfx/gfx.h
+fn gfxInitDefault,gfxExit,gfxInitResolutionDefault,gfxWaitForVsync,gfxSwapBuffers,gfxFlushBuffers
+  rv void
+  nr f
+
+fn gfxInitResolution
+  rv void
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+fn gfxConfigureCrop
+  rv void
+  nr f
+  1 nb nu
+  2 nb nu
+  3 nb nu
+  4 nb nu
+
+fn gfxConfigureResolution
+  rv void
+  nr f
+  1 nb nu
+  2 nb nu
+
+fn gfxConfigureAutoResolution
+  rv void
+  nr f
+  1 nu
+  2 nb nu
+  3 nb nu
+  4 nb nu
+  5 nb nu
+
+fn gfxConfigureAutoResolutionDefault
+  rv void
+  nr f
+  1 nu
+
+fn gfxGetFramebuffer
+  li
+  ur
+  rv u8*
+  nr f
+  1 nb
+  2 nb
+
+fn gfxGetFramebufferResolution
+  li
+  rv void
+  nr f
+  1 nb
+  2 nb
+
+fn gfxGetFramebufferSize
+  ur
+  rv size_t
+  nr f
+
+fn gfxSetDoubleBuffering
+  rv void
+  nr f
+  1 nu
+
+fn gfxGetFramebufferDisplayOffset
+  ur
+  rv u32
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+# gfx/nvgfx.h
+fn nvgfxInitialize
+  ur
+  rv Result
+  nr f
+
+fn nvgfxExit
+  rv void
+  nr f
+
+fn nvgfxEventWait
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu
+
+fn nvgfxSubmitGpfifo
+  ur
+  rv Result
+  nr f
+
+fn nvgfxGetFramebuffer
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+  2 nb
+
+# gfx/nvioctl.h
+fn nvioctlNvhostCtrl_EventSignal,nvioctlNvhostCtrl_EventRegister
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+fn nvioctlNvhostCtrl_EventWait
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu
+
+fn nvioctlNvhostCtrlGpu_ZCullGetCtxSize,nvioctlNvhostCtrlGpu_ZCullGetInfo,nvioctlNvhostCtrlGpu_GetCharacteristics,nvioctlNvhostCtrlGpu_GetTpcMasks,nvioctlNvhostCtrlGpu_GetL2State
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn
+
+fn nvioctlNvhostAsGpu_BindChannel
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+fn nvioctlNvhostAsGpu_AllocSpace
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb nu v{0:}
+  6 nb nn
+
+fn nvioctlNvhostAsGpu_MapBufferEx
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb nu v{0:}
+  6 nb nu v{0:}
+  7 nb nu v{0:}
+  8 nb nu v{0:}
+  9 nb nn
+
+fn nvioctlNvhostAsGpu_GetVARegions
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn
+
+fn nvioctlNvhostAsGpu_InitializeEx
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+
+fn nvioctlNvmap_Create,nvioctlNvmap_FromId
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nn
+
+fn nvioctlNvmap_Alloc
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb nu v{0:}
+  6 nb nu v{0:}
+  7 nb nn
+
+fn nvioctlNvmap_GetId
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nn
+
+fn nvioctlChannel_SetNvmapFd
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+fn nvioctlChannel_SubmitGpfifo
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn nu
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb
+
+fn nvioctlChannel_AllocObjCtx
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0x902D,0xB197,0xB1C0,0xA140,0xB0B5,0xB06F}
+  3 nb nu v{0:}
+
+fn nvioctlChannel_ZCullBind
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+
+fn nvioctlChannel_SetErrorNotifier
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn nvioctlChannel_SetPriority
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0x32,0x64,0x96}
+
+fn nvioctlChannel_AllocGpfifoEx2
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb nu v{0:}
+  6 nb nu v{0:}
+  7 nb nu v{0:}
+  8 nb
+
+fn nvioctlChannel_SetUserData
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb
+
+# gfx/parcel.h
+fn parcelInitialize
+  li
+  rv void
+  nr f
+  1 nb nn
+
+fn parcelTransact
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nn nu
+  4 nb nn
+
+fn parcelWriteData,parcelReadData
+  li
+  rv void*
+  nr f
+  1 nb nn nu
+  2 nb min{argvalue,3}
+  3 nb nu v{0:}
+
+fn parcelWriteInt32,parcelWriteUInt32
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu
+
+fn parcelWriteString16,parcelWriteInterfaceToken
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+
+fn parcelReadInt32
+  li
+  rv s32
+  nr f
+  1 nb nn nu
+
+fn parcelReadUInt32
+  li
+  rv u32
+  nr f
+  1 nb nn nu
+
+fn parcelReadFlattenedObject
+  li
+  rv void*
+  nr f
+  1 nb nn nu
+  2 nb
+
+fn parcelWriteFlattenedObject
+  li
+  rv void*
+  nr f
+  1 nb nn nu
+  2 nb min{argvalue,3}
+  3 nb nu v{0:}
+
+# kernel/detect.h
+fn kernelAbove200,kernelAbove300,kernelAbove400,detectDebugger
+  ur
+  rv bool
+  nr f
+
+# kernel/jit.h
+fn jitCreate
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn jitTransitionToWritable,jitTransitionToExecutable
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn jitClose
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn jitGetRwAddr,jitGetRxAddr
+  li
+  ur
+  rv void*
+  nr f
+  1 nb nn nu
+
+# kernel/mutex.h
+fn mutexInit
+  li
+  rv void
+  nr f
+  1 nb nn
+
+fn mutexLock,mutexUnlock
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn rmutexInit
+  li
+  rv void
+  nr f
+  1 nb nn
+
+fn rmutexLock,rmutexUnlock
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+# kernel/random.h
+fn randomGet
+  li
+  rv void
+  nr f
+  1 nb nn min{argvalue,2}
+  2 nb nu v{0:}
+
+fn randomGet64
+  ur
+  rv u64
+  nr f
+
+# kernel/rwlock.h
+fn rwlockReadLock,rwlockReadUnlock
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn rwlockWriteLock,rwlockWriteUnlock
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+# kernel/shmem.h
+fn shmemCreate
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu
+  4 nb nu
+
+fn shmemLoadRemote
+  li
+  rv void
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu
+
+fn shmemMap
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn shmemUnmap
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn shmemGetAddr
+  li
+  ur
+  rv void*
+  nr f
+  1 nb nn nu
+
+fn shmemClose
+  rv Result
+  nr f
+  1 nb nn nu
+
+# kernel/svc.h
+fn svcSetHeapSize
+  li
+  rv Result
+  nr f
+  1 nb
+  2 nb nu v{0:}
+
+fn svcMapMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu
+  3 nb nu v{0:}
+
+fn svcUnmapMemory
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu
+  3 nb nu v{0:}
+
+fn svcQueryMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb nu v{0:}
+
+fn svcExitProcess
+  li
+  rv void
+  nr t
+
+fn svcCreateThread
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu
+  3 nb
+  4 nb
+  5 nb nu
+  6 nb nu
+
+fn svcStartThread
+  ur
+  rv Result
+  1 nb nu v{0:}
+
+fn svcExitThread
+  rv void
+  nr t
+
+fn svcSleepThread
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn svcClearEvent
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn svcCloseHandle
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn svcResetSignal
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn svcMapSharedMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcUnmapSharedMemory
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+
+fn svcCreateTransferMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcWaitSynchronization
+  li
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu
+  3 nb nu
+  4 nb nu v{0:}
+
+fn svcCancelSynchronization
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn svcArbitrateLock
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn
+  3 nb nu v{0:}
+
+fn svcArbitrateUnlock
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn svcConnectToNamedPort
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu s
+
+fn svcGetSystemTick
+  ur
+  rv u64
+  nr f
+
+fn svcSendSyncRequest
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn svcGetProcessId
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn svcBreak
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+
+fn svcOutputDebugString
+  li
+  rv Result
+  nr f
+  1 nb nn nu min{argvalue,2}
+  2 nb nu v{0:}
+
+fn svcGetInfo
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcSetThreadActivity
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nu
+
+fn svcCreateSession
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcAcceptSession
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn svcReplyAndReceive
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn nu
+  3 nb nu
+  4 nb nu v{0:}
+  5 nb nu v{0:}
+
+fn svcCreateJitMemory
+  li
+  ur
+  nr f
+  rv Result
+  1 nb nn
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+
+fn svcMapJitMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nu
+  3 nb nn min{argvalue,4}
+  4 nb nu v{0:}
+  5 nb nu v{0:}
+
+fn svcCreateSharedMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcMapTransferMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcUnmapTransferMemory
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+
+fn svcQueryPhysicalAddress
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+
+fn svcQueryIoMapping
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+
+fn svcCreateDeviceAddressSpace
+  li
+  ur
+  rv Result
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+
+fn svcAttachDeviceAddressSpace
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+fn svcDetachDeviceAddressSpace
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+fn svcMapDeviceAddressSpaceAligned
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb nu v{0:}
+  6 nb nu v{0:}
+
+fn svcUnmapDeviceAddressSpace
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb nu v{0:}
+
+fn svcDebugActiveProcess
+  li
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn svcBreakDebugProcess
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn svcGetDebugEvent
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu
+
+fn svcContinueDebugEvent
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+
+fn svcGetDebugThreadContext
+  li
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcGetProcessList
+  li
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb nu v{0:}
+
+fn svcQueryDebugProcessMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcReadDebugProcessMemory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn min{argvalue,4}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcWriteDebugProcessMemory
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn nu min{argvalue,4}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcManageNamedPort
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu s
+  3 nb nu
+
+fn svcSetProcessMemoryPermission
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcMapProcessMemory
+  li
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcMapProcessCodeMemory,svcUnmapProcessCodeMemory
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+
+fn svcCreateProcess
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb nn
+  4 nb nu v{0:}
+
+fn svcStartProcess
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu
+  3 nb nu
+  4 nb nu
+
+fn svcCallSecureMonitor
+  li
+  ur
+  rv u64
+  nr f
+  1 nb nn nu
+
+fn svcWaitSynchronizationSingle
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+# kernel/thread.h
+fn threadCreate
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb
+  4 nb nu v{0:}
+  5 nb nu
+  6 nb nu
+
+fn threadStart,threadWaitForExit,threadPause,threadResume
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn threadClose
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn tmemCreate
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu
+
+fn tmemLoadRemote
+  li
+  rv void
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nu
+
+fn tmemMap
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn tmemUnmap
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn tmemGetAddr
+  li
+  ur
+  rv void*
+  nr f
+  1 nb nn nu
+
+fn tmemClose
+  rv Result
+  nr f
+  1 nb nn nu
+
+# kernel/virtmem.h
+fn virtmemReserve
+  ur
+  rv void*
+  nr f
+  1 nb nu v{0:}
+
+fn virtmemFree
+  rv void
+  nr f
+  1 nb
+  2 nb nu v{0:}
+
+fn virtmemReserveMap
+  ur
+  rv void*
+  nr f
+  1 nb nu v{0:}
+
+fn virtmemFreeMap
+  rv void
+  nr f
+  1 nb
+  2 nb nu v{0:}
+
+# runtime/env.h
+fn envSetup
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+
+fn envGetMainThreadHandle
+  ur
+  rv Handle
+  nr f
+
+fn envIsNso,envHasHeapOverride,envHasArgv
+  ur
+  rv bool
+  nr f
+
+fn envGetHeapOverrideAddr
+  ur
+  rv void*
+  nr f
+
+fn envGetHeapOverrideSize
+  ur
+  rv u64
+  nr f
+
+fn envGetArgc
+  ur
+  rv u64
+  nr f
+
+fn envGetArgv
+  ur
+  rv void*
+  nr f
+
+fn envIsSyscallHinted
+  ur
+  rv bool
+  nr f
+  1 nb nu v{0:255}
+
+fn envGetOwnProcessHandle
+  ur
+  rv Handle
+  nr f
+
+fn envGetExitFuncPtr
+  ur
+  rv LoaderReturnFn
+  nr f
+
+fn envSetNextLoad
+  li
+  rv Result
+  nr f
+  1 nb nn nu s
+  2 nb nu s
+
+fn envHasNextLoad
+  ur
+  rv bool
+  nr f
+
+# runtime/devices/console.h
+fn consoleSetFont
+  li
+  rv void
+  nr f
+  1 nb nu
+  2 nb nn nu
+
+fn consoleSetWindow
+  li
+  rv void
+  nr f
+  1 nb nu
+  2 nb nu
+  3 nb nu
+  4 nb nu
+  5 nb nu
+
+fn consoleGetDefault
+  ur
+  rv PrintConsole*
+  nr f
+
+fn consoleSelect
+  li
+  rv PrintConsole*
+  nr f
+  1 nb nu
+
+fn consoleInit
+  li
+  rv PrintConsole*
+  nr f
+  1 nb
+
+fn consoleDebugInit
+  rv void
+  nr f
+  1 nb
+
+fn consoleClear
+  rv void
+  nr f
+
+# runtime/devices/fs_dev.h
+fn fsdevInit
+  ur
+  rv Result
+  nr f
+
+fn fsdevExit
+  rv Result
+  nr f
+
+fn fsdevMountDevice
+  li
+  ur
+  rv int
+  nr f
+  1 nb nn nu s
+  2 nb nu
+
+fn fsdevUnmountDevice
+  li
+  rv int
+  nr f
+  1 nb nn nu s
+
+fn fsdevCommitDevice
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu s
+
+# runtime/devices/usb_comms.h
+fn usbCommsInitialize
+  ur
+  rv Result
+  nr f
+
+fn usbCommsExit
+  rv void
+  nr f
+
+fn usbCommsRead
+  li
+  ur
+  rv size_t
+  nr f
+  1 nb nn min{argvalue,2}
+  2 nb nu v{0:}
+
+fn usbCommsWrite
+  li
+  ur
+  rv size_t
+  nr f
+  1 nb nn nu min{argvalue,2}
+  2 nb nu v{0:}
+
+# runtime/util/utf.h
+fn decode_utf8,decode_utf16,
+  li
+  rv ssize_t
+  nr f
+  1 nb nn
+  2 nb nn nu
+
+fn encode_utf8,encode_utf16
+  li
+  rv ssize_t
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn utf8_to_utf16,utf8_to_utf32
+  li
+  rv ssize_t
+  nr f
+  1 nb nn
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+
+fn utf16_to_utf8,utf16_to_utf32,utf32_to_utf8,utf32_to_utf16
+  li
+  rv ssize_t
+  nr f
+  1 nb nn
+  2 nb nn nu
+  3 nb nu v{0:}
+
+# services/acc.h
+fn accountInitialize
+  ur
+  rv Result
+  nr f
+
+fn accountExit
+  rv void
+  nr f
+
+fn accountGetSessionService
+  ur
+  rv Handle
+  nr f
+
+fn accountGetActiveUser
+  li
+  ur
+  rv Result
+  1 nb
+  2 nb
+
+# services/apm.h
+fn apmInitialize
+  ur
+  rv Result
+  nr f
+
+fn apmExit
+  rv void
+  nr f
+
+fn apmSetPerformanceConfiguration
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+fn apmGetPerformanceConfiguration
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb
+
+# services/applet.h
+fn appletInitialize
+  ur
+  rv Result
+  nr f
+
+fn appletExit
+  rv void
+  nr f
+
+fn appletGetAppletResourceUserId
+  li
+  rv Result
+  nr f
+  1 nb nn
+
+fn appletNotifyRunning
+  li
+  rv void
+  nr f
+  1 nb
+
+fn appletCreateManagedDisplayLayer
+  li
+  rv Result
+  nr f
+  1 nb nn
+
+fn appletMainLoop
+  ur
+  rv bool
+  nr f
+
+fn appletHook
+  li
+  rv void
+  nr f
+  1 nb nn
+  2 nb nn nu
+  3 nb nu
+
+fn appletUnhook
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn appletGetOperationMode,appletGetFocusState
+  ur
+  rv u8
+  nr f
+
+fn appletGetPerformanceMode
+  ur
+  rv u32
+  nr f
+
+# services/bsd.h
+fn bsdGetDefaultConfig
+  ur
+  rv const BsdConfig*
+  nr f
+
+fn bsdInitialize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn bsdExit
+  rv void
+  nr f
+
+fn bsdGetErrno
+  ur
+  rv int
+  nr f
+
+fn bsdConnect
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+
+fn bsdSocket
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nu
+  3 nb nu
+
+fn bsdBind
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+
+fn bsdListen
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nu
+
+fn bsdSend
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu
+
+fn bsdSendTo
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu
+  5 nb nn nu
+  6 nb nu v{0:}
+
+fn bsdRecv
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu
+
+fn bsdSetSockOpt
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nu
+  3 nb nu
+  4 nb nn nu min{argvalue,5}
+  5 nb nu v{0:}
+
+fn bsdWrite
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+
+fn bsdInitializeDefault
+  ur
+  rv Result
+  nr f
+
+# services/fatal.h
+fn fatalSimple
+  rv void
+  nr t
+  1 nb nu
+
+# services/fs.h
+fn fsInitialize
+  ur
+  rv Result
+  nr f
+
+fn fsExit
+  rv void
+  nr f
+
+fn fsGetServiceSession
+  ur
+  rv Service*
+  nr f
+
+fn fsMountSdcard
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn fsMountSaveData
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nn nu
+
+fn fsMount_SaveData
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+
+fn fsFsCreateFile
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+  3 nb nu v{0:}
+  4 nb nu
+
+fn fsFsDeleteFile
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+
+fn fsFsCreateDirectory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+
+fn fsFsDeleteDirectory,fsFsDeleteDirectoryRecursively
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+
+fn fsFsRenameFile,fsFsRenameDirectory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+  3 nb nn nu s
+
+fn fsFsGetEntryType
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+  3 nb nn
+
+# TODO: associate this with fsFileClose/fsDirClose via cppcheck's leak checker somehow
+fn fsFsOpenFile,fsFsOpenDirectory
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+  3 nb nu
+  4 nb nn
+
+fn fsFsCommit
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn fsFsGetFreeSpace,fsFsGetTotalSpace
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu s
+  3 nb nn
+
+fn fsFsClose
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn fsFileRead
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn min{argvalue,4}
+  4 nb nu v{0:}
+  5 nb nn
+
+fn fsFileWrite
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn nu min{argvalue,4}
+  4 nb nu v{0:}
+
+fn fsFileFlush
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn fsFileSetSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+
+fn fsFileGetSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn fsFileClose
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn fsDirRead
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb
+  4 nb nu v{0:}
+  5 nb nn
+
+fn fsDirGetEntryCount
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn fsDirClose
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+# services/hid.h
+fn hidInitialize
+  ur
+  rv Result
+  nr f
+
+fn hidExit,hidReset
+  rv void
+  nr f
+
+fn hidGetSessionService
+  ur
+  rv Service*
+  nr f
+
+fn hidGetSharedmemAddr
+  ur
+  rv void*
+  nr f
+
+fn hidSetControllerLayout
+  rv void
+  nr f
+  1 nb nu
+  2 nb nu
+
+fn hidGetControllerLayout
+  ur
+  rv HidControllerLayoutType
+  nr f
+  1 nb nu
+
+fn hidScanInput
+  rv void
+  nr f
+
+fn hidKeysHeld,hidKeysDown,hidKeysUp
+  ur
+  rv u64
+  nr f
+  1 nb nu
+
+fn hidMouseButtonsHeld,hidMouseButtonsDown,hidMouseButtonsUp
+  ur
+  rv u64
+  nr f
+
+fn hidKeyboardModifierHeld,hidKeyboardModifierDown,hidKeyboardModifierUp
+  ur
+  rv bool
+  nr f
+  1 nb nu
+
+fn hidKeyboardHeld,hidKeyboardDown,hidKeyboardUp
+  ur
+  rv bool
+  nr f
+  1 nb nu
+
+fn hidTouchCount
+  ur
+  rv u32
+  nr f
+
+fn hidTouchRead
+  li
+  rv void
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+# services/nv.h
+fn nvInitialize
+  ur
+  rv Result
+  nr f
+  1 nb nu v{-1,0,1,2,3}
+  2 nb nu v{0:}
+
+fn nvExit
+  rv void
+  nr f
+
+fn nvOpen
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu s
+
+fn nvIoctl
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb
+
+fn nvClose
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn nvQueryEvent
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nn
+
+fn nvConvertError
+  ur
+  rv Result
+  nr f
+  1 nb nu
+
+# services/pm.h
+fn pmdmntInitialize
+  ur
+  rv Result
+  nr f
+
+fn pmdmntStartProcess
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn pmdmntGetTitlePid
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn pmdmntEnableDebugForTitleId
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn pmdmntGetApplicationPid
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn pmdmntEnableDebugForApplication
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+# services/sm.h
+fn serviceIsOverride,serviceIsActive,
+  li
+  ur
+  rv bool
+  nr f
+  1 nb nn nu
+
+fn serviceIpcDispatch
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn serviceCreate
+  li
+  rv void
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn serviceClose
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn smInitialize
+  ur
+  rv Result
+  nr f
+
+fn smExit
+  rv void
+  nr f
+
+fn smGetService
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu s
+
+fn smGetServiceOriginal
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn smGetServiceOverride
+  ur
+  rv Handle
+  nr f
+  1 nb nu v{0:}
+
+fn smRegisterService
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu s
+  3 nu
+  4 nb nu
+
+fn smUnregisterService
+  li
+  rv Result
+  nr f
+  1 nb nn nu s
+
+fn smHasInitialized
+  ur
+  rv bool
+  nr f
+
+fn smEncodeName
+  li
+  ur
+  rv u64
+  nr f
+  1 nb nn nu s
+
+fn smAddOverrideHandle
+  rv void
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+
+# services/usb.h
+fn usbDsInitialize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn nu
+
+fn usbDsExit
+  rv void
+  nr f
+
+fn usbDsGetServiceSession
+  ur
+  rv Service*
+  nr f
+
+fn usbDsGetStateChangeEvent
+  ur
+  rv Handle
+  nr f
+
+fn usbDsGetState
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn usbDsGetDsInterface
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb nn nu s
+
+fn usbDsWaitReady
+  ur
+  rv Result
+  nr f
+
+fn usbDsParseReportData
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb
+  4 nb
+
+fn usbDsInterface_Close
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn usbDsInterface_GetDsEndpoint
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+  3 nb nn nu
+
+fn usbDsInterface_EnableInterface,usbDsInterface_DisableInterface
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn usbDsInterface_CtrlInPostBufferAsync,usbDsInterface_CtrlOutPostBufferAsync
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb
+
+fn usbDsInterface_GetCtrlInReportData,usbDsInterface_GetCtrlOutReportData
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn usbDsInterface_StallCtrl
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn usbDsEndpoint_Close
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn usbDsEndpoint_PostBufferAsync
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb
+
+fn usbDsEndpoint_GetReportData
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn usbDsEndpoint_StallCtrl
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn viInitialize
+  ur
+  rv Result
+  nr f
+  1 nb nu
+
+fn viExit
+  rv void
+  nr f
+
+fn viGetSessionService,viGetSession_IApplicationDisplayService,viGetSession_IHOSBinderDriverRelay,viGetSession_ISystemDisplayService,viGetSession_IManagerDisplayService,viGetSession_IHOSBinderDriverIndirect
+  ur
+  rv Service*
+  nr f
+
+fn viOpenDisplay
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu s
+  2 nb nn
+
+fn viCloseDisplay
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn viCreateManagedLayer
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb nn
+
+fn viOpenLayer
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb nn nu
+  4 nb nn
+  5 nb nu v{0:}
+  6 nb nu v{0:}
+
+fn viCloseLayer
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn viSetLayerScalingMode
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+
+fn viGetDisplayResolution
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb
+  3 nb
+
+fn viGetDisplayVsyncEvent
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
