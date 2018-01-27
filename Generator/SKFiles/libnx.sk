@@ -380,14 +380,12 @@ fn ipcPrepareHeader
   2 nb nu v{0:}
 
 fn ipcDispatch
-  ur
   rv Result
   nr f
   1 nb nu
 
 fn ipcParse
   li
-  ur
   rv Result
   nr f
   1 nb nn
@@ -454,7 +452,6 @@ fn binderTransactParcel,_binderTransactParcel,_binderTransactParcelAuto
 
 fn binderAdjustRefcount
   li
-  ur
   rv Result
   nr f
   1 nb nn nu
@@ -503,7 +500,6 @@ fn bufferProducerDequeueBuffer
   7 nb
 
 fn bufferProducerDetachBuffer
-  ur
   rv Result
   nr f
   1 nb nu
@@ -2451,7 +2447,7 @@ fn usbDsInitialize
   rv Result
   nr f
   1 nb nu
-  2 nb nn nu
+  2 nb nu
 
 fn usbDsExit
   rv void
