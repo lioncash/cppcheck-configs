@@ -703,7 +703,7 @@ fn nvioctlNvhostAsGpu_MapBufferEx
   6 nb nu v{0:}
   7 nb nu v{0:}
   8 nb nu v{0:}
-  9 nb nn
+  9 nb
 
 fn nvioctlNvhostAsGpu_GetVARegions
   li
