@@ -774,7 +774,7 @@ fn nvioctlChannel_AllocObjCtx
   rv Result
   nr f
   1 nb nu v{0:}
-  2 nb nu v{0x902D,0xB197,0xB1C0,0xA140,0xB0B5,0xB06F}
+  2 nb nu
   3 nb nu v{0:}
 
 fn nvioctlChannel_ZCullBind
@@ -797,7 +797,7 @@ fn nvioctlChannel_SetPriority
   rv Result
   nr f
   1 nb nu v{0:}
-  2 nb nu v{0x32,0x64,0x96}
+  2 nb nu
 
 fn nvioctlChannel_AllocGpfifoEx2
   li
