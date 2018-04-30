@@ -236,6 +236,7 @@ pod FsFileFlags s
 pod FsFileSystem
 pod FsSave
 pod FsStorage
+pod FsStorageId s
 
 # services/hid.h
 pod HidController
@@ -1869,6 +1870,201 @@ fn appletGetPerformanceMode
   rv u32
   nr f
 
+# services/audin.h
+fn audinInitialize
+  ur
+  rv Result
+  nr f
+
+fn audinExit
+  rv void
+  nr f
+
+fn audinGetSampleRate,audinGetChannelCount
+  ur
+  rv u32
+  nr f
+
+fn audinGetPcmFormat
+  ur
+  rv PcmFormat
+  nr f
+
+fn audinGetDeviceState
+  ur
+  rv AudioInState
+  nr f
+
+fn audinWaitCaptureFinish
+  li
+  rv Result
+  nr f
+  1 nb nn
+  2 nb
+  3 nb nu v{0:}
+
+fn audinCaptureBuffer
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn audinListAudioIns
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb
+
+fn audinOpenAudioIn
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu s
+  2 nb nn
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb
+  6 nb
+  7 nb
+  8 nb
+
+fn audinGetAudioInState
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+
+fn audinStartAudioIn,audinStopAudioIn
+  ur
+  rv Result
+  nr f
+
+fn audinAppendAudioInBuffer
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn audinGetReleasedAudioInBuffer
+  li
+  rv Result
+  nr f
+  1 nb nn
+  2 nb
+
+fn audinContainsAudioInBuffer
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+  2
+
+# services/audout.h
+fn audoutInitialize
+  ur
+  rv Result
+  nr f
+
+fn audoutExit
+  rv void
+  nr f
+
+fn audoutGetSampleRate,audoutGetChannelCount
+  ur
+  rv u32
+  nr f
+
+fn audoutGetPcmFormat
+  ur
+  rv PcmFormat
+  nr f
+
+fn audoutGetDeviceState
+  ur
+  rv AudioOutState
+  nr f
+
+fn audoutWaitPlayFinish
+  li
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+  3 nb nn
+
+fn audoutPlayBuffer
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb
+
+fn audoutListAudioOuts
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb
+
+fn audoutOpenAudioOut
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu s
+  2 nb
+  3 nb nu v{0:}
+  4 nb nu v{0:}
+  5 nb
+  6 nb
+  7 nb
+  8 nb
+
+fn audoutGetAudioOutState
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+
+fn audoutStartAudioOut
+  ur
+  rv Result
+  nr f
+
+fn audoutStopAudioOut
+  rv Result
+  nr f
+
+fn audoutAppendAudioOutBuffer
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn audoutGetReleasedAudioOutBuffer
+  li
+  rv Result
+  nr f
+  1 nb
+  2 nb
+
+fn audoutContainsAudioOutBuffer
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+  2
+
 # services/bsd.h
 fn bsdGetDefaultConfig
   ur
@@ -2185,6 +2381,35 @@ fn fsDirClose
   nr f
   1 nb nn nu
 
+# services/fsldr.c
+fn fsldrSetCurrentProcess
+  rv Result
+  nr f
+
+fn fsldrInitialize
+  ur
+  rv Result
+  nr f
+
+fn fsldrExit
+  rv void
+  nr f
+
+fn fsldrOpenCodeFileSystem
+  li
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn nu s
+  3 nb nn
+
+fn fsldrIsArchivedProgram
+  li
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn
+
 # services/hid.h
 fn hidInitialize
   ur
@@ -2256,6 +2481,146 @@ fn hidTouchRead
   1 nb nn
   2 nb nu v{0:}
 
+# services/irs.h
+fn irsInitialize
+  ur
+  rv Result
+  nr f
+
+fn irsExit
+  rv void
+  nr f
+
+fn irsGetSessionService
+  li
+  ur
+  rv Service*
+  nr f
+
+fn irsGetSharedmemAddr
+  li
+  ur
+  rv void*
+  nr f
+
+fn irsActivateIrsensor
+  li
+  rv Result
+  nr f
+  1 nu
+
+fn irsStopImageProcessor
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn irsRunImageTransferProcessor
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn nu
+  3 nb nu v{0:}
+
+fn irsGetImageTransferProcessorState
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nn
+
+fn irsGetDefaultImageTransferProcessorConfig
+  li
+  rv void
+  nr f
+  1 nb nn
+
+fn irsGetIrCameraHandle
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu
+
+fn irsSuspendImageProcessor
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+# services/lr.h
+fn lrInitialize
+  ur
+  rv Result
+  nr f
+
+fn lrExit
+  rv void
+  nr f
+
+fn lrGetLocationResolver
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn
+
+fn lrGetRegisteredLocationResolver
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn lrLrGetProgramPath,lrLrGetUserControlPath,lrLrGetControlPath,lrLrGetDocHtmlPath,lrLrGetInfoHtmlPath,lrRegLrGetProgramPath
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn
+
+fn lrLrSetProgramPath,lrLrSetControlPath,lrLrSetDocHtmlPath,lrLrSetInfoHtmlPath
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn nu s
+
+fn lrLrClearOverridePaths
+  li
+  rv Result
+  nr f
+  1 nb nn nu
+
+# services/ns.h
+fn nsInitialize
+  ur
+  rv Result
+  nr f
+
+fn nsExit
+  rv void
+  nr f
+
+fn nsGetApplicationControlData
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nn nu
+  4 nb nu v{0:}
+  5 nb
+
 # services/nv.h
 fn nvInitialize
   ur
@@ -2304,6 +2669,39 @@ fn nvConvertError
   rv Result
   nr f
   1 nb nu
+
+# services/pl.h
+fn plInitialize
+  ur
+  rv Result
+  nr f
+
+fn plExit
+  rv void
+  nr f
+
+fn plGetSharedmemAddr
+  ur
+  rv void*
+  nr f
+
+fn plGetSharedFontByType
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn plGetSharedFont
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn
+  3 nb nu v{0:}
+  4 nb
 
 # services/pm.h
 fn pmdmntInitialize
@@ -2438,6 +2836,38 @@ fn smAddOverrideHandle
   rv void
   nr f
   1 nb nu v{0:}
+  2 nb nu v{0:}
+
+# services/time.h
+fn timeInitialize
+  ur
+  rv Result
+  nr f
+
+fn timeExit
+  rv void
+  nr f
+
+fn timeGetSessionService
+  li
+  ur
+  rv Service*
+  nr f
+
+fn timeGetCurrentTime
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn
+
+fn timeSetCurrentTime
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
   2 nb nu v{0:}
 
 # services/usb.h
