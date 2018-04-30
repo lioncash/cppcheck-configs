@@ -222,6 +222,14 @@ pod AppletHookType s
 pod AppletOperationMode s
 pod AppletType s
 
+# services/audin.h
+pod AudioInBuffer
+pod AudioInState s
+
+# services/audout.h
+pod AudioOutBuffer
+pod AudioOutState s
+
 # services/bsd.h
 pod BsdConfig s
 
@@ -235,6 +243,9 @@ pod FsFile
 pod FsFileFlags s
 pod FsFileSystem
 pod FsSave
+pod FsSaveDataIterator
+pod FsSaveDataSpaceId s
+pod FsSaveDataType s
 pod FsStorage
 pod FsStorageId s
 
@@ -267,12 +278,40 @@ pod HidTouchScreenEntryTouch
 pod HidTouchScreenHeader
 pod touchPosition
 
+# services/irs.h
+pod IrsImageTransferProcessorConfig
+pod IrsImageTransferProcessorState
+pod IrsPackedImageTransferProcessorConfig
+pod IrsPackedMomentProcessorConfig
+
+# services/lr.h
+pod LrLocationResolver
+pod LrRegisteredLocationResolver
+
+# services/ns.h
+pod NsApplicationControlData
+
 # services/nv.h
 pod nvServiceType s
+
+# services/pl.h
+pod PlFontData
+pod PlSharedFontType s
+
+# services/set.h
+pod ColorSetId s
+pod SetLanguage s
+
+# services/sfdnsres.h
+pod SfdnsresConfig
+pod SfdnsresRequestResults
 
 # services/sm.h
 pod Service
 pod ServiceType
+
+# services/time.h
+pod TimeType s
 
 # services/usb.h
 pod UsbComplexId s
