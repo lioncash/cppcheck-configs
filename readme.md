@@ -4,7 +4,7 @@ A repository for all the cppcheck static analysis configuration files I've made.
 
 ### What do these do?
 
-You use them with a static analysis program for C/C++ called [cppcheck](https://github.com/danmar/cppcheck/). What they do is allow cppcheck to assume certain things about functions in an API. For example, in C there are no mild language level protections to enforce that a null pointer shouldn't be passed to a parameter (C++ has references to prevent this more-or-less). By documenting that a parameter should not be passed a null pointer, cppcheck is then able to flag violations of this precondition.
+You use them with a static analysis program for C/C++ called [cppcheck](https://github.com/danmar/cppcheck/). What they do is allow cppcheck to assume certain things about functions in an API. For example, say there's a function in an API that can only accept a certain range of values (e.g. only values 0–10 inclusive), you can declare this constraint in a config file and cppcheck's analyzer will be able to flag violations of that constraint (the best it can, of course).
 
 These files also allow leak checking to be more thorough, as you can describe which functions in an API allocate and deallocate and associate them together.
 
