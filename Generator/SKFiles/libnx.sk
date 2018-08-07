@@ -95,6 +95,9 @@ def CONSOLE_CROSSED_OUT   (1<<8)
 # runtime/devices/fs_dev
 def FSDEV_DIRITER_MAGIC 0x66736476
 
+# services/acc.h
+def ACC_USER_LIST_SIZE 8
+
 # services/bsd.h
 def BSD_AF_INET  2
 def BSD_AF_INET6 10
@@ -113,6 +116,13 @@ def FS_MAX_PATH 0x301
 def FS_MOUNTSAVEDATA_INVAL_DEFAULT 0x1
 def FS_SAVEDATA_CURRENT_TITLEID 0
 def FS_SAVEDATA_USERID_COMMONSAVE 0
+
+# services/hid.h
+def JOYSTICK_MAX (0x8000)
+def JOYSTICK_MIN (-0x8000)
+
+# services/set.h
+def SET_MAX_NAME_SIZE 0x48
 
 # services/usb.h
 def USBDS_DEFAULT_InterfaceNumber 0x4
@@ -215,6 +225,11 @@ pod PrintConsole
 # runtime/devices/fs_dev.h
 pod fsdev_dir_t
 
+# services/acc.h
+pod AccountProfile
+pod AccountProfileBase
+pod AccountUserData
+
 # services/applet.h
 pod AppletHookCookie
 pod AppletHookFn
@@ -235,14 +250,17 @@ pod BsdConfig s
 
 # services/fs.h
 pod FsContentStorageId s
+pod FsDeviceOperator
 pod FsDir
 pod FsDirectoryEntry
 pod FsDirectoryFlags s
 pod FsEntryType s
+pod FsEventNotifier
 pod FsFile
 pod FsFileFlags s
 pod FsFileSystem
 pod FsSave
+pod FsSaveDataInfo
 pod FsSaveDataIterator
 pod FsSaveDataSpaceId s
 pod FsSaveDataType s
@@ -276,6 +294,10 @@ pod HidTouchScreen
 pod HidTouchScreenEntryHeader
 pod HidTouchScreenEntryTouch
 pod HidTouchScreenHeader
+pod HidVibrationDeviceInfo
+pod HidVibrationValue
+pod JoystickPosition
+pod MousePosition
 pod touchPosition
 
 # services/irs.h
@@ -284,9 +306,24 @@ pod IrsImageTransferProcessorState
 pod IrsPackedImageTransferProcessorConfig
 pod IrsPackedMomentProcessorConfig
 
+# services/ldr.h
+pod LoaderNsoInfo
+pod LoaderProgramInfo
+
 # services/lr.h
 pod LrLocationResolver
 pod LrRegisteredLocationResolver
+
+# services/ncm.h
+pod NcmApplicationContentMetaKey
+pod NcmContentMetaDatabase
+pod NcmContentMetaRecordsHeader
+pod NcmContentRecord
+pod NcmContentStorage
+pod NcmContentType s
+pod NcmMetaRecord
+pod NcmNcaId
+pod NcmRightsId
 
 # services/ns.h
 pod NsApplicationControlData
@@ -301,6 +338,8 @@ pod PlSharedFontType s
 # services/set.h
 pod ColorSetId s
 pod SetLanguage s
+pod SetRegion s
+pod SetSysFlag s
 
 # services/sfdnsres.h
 pod SfdnsresConfig
@@ -1817,17 +1856,76 @@ fn accountExit
   rv void
   nr f
 
-fn accountGetSessionService
-  ur
-  rv Handle
-  nr f
-
 fn accountGetActiveUser
   li
   ur
   rv Result
+  nr f
   1 nb
   2 nb
+
+fn accountGetProfile
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu
+
+fn accountGetService
+  li
+  ur
+  rv Service*
+  nr f
+
+fn accountGetUserCount
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn accountListAllUsers
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nn
+
+fn accountProfileGet
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb
+  3 nb nn
+
+fn accountProfileGetImageSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+
+fn accountProfileLoadImage
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nn
+
+fn accountProfileClose
+  li
+  rv Result
+  nr f
+  1 nb nn nu
 
 # services/apm.h
 fn apmInitialize
@@ -1879,6 +1977,25 @@ fn appletCreateManagedDisplayLayer
   rv Result
   nr f
   1 nb nn
+
+fn appletGetDesiredLanguage
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+
+fn appletSetScreenShotPermission
+  li
+  rv Result
+  nr f
+  1 nb nu
+
+fn appletSetScreenShotImageOrientation
+  li
+  rv Result
+  nr f
+  1 nb nu
 
 fn appletMainLoop
   ur
@@ -2143,26 +2260,80 @@ fn bsdSocket
   2 nb nu
   3 nb nu
 
-fn bsdBind
+fn bsdSocketExempt
   li
-  ur
-  rv int
-  nr f
-  1 nb nu
-  2 nb nn nu min{argvalue,3}
-  3 nb nu v{0:}
-
-fn bsdListen
   ur
   rv int
   nr f
   1 nb nu
   2 nb nu
+  3 nb nu
+
+fn bsdOpen
+  li
+  ur
+  rv int
+  nr f
+  1 nb nn nu str
+  2 nb nu
+
+fn bsdSelect
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb
+  3 nb
+  4 nb
+  5 nb
+
+fn bsdPoll
+  li
+  ur
+  rv int
+  nr f
+  1 nb nn
+  2 nb nu
+  3 nb nu
+
+fn bsdSysctl
+  li
+  ur
+  rv int
+  nr f
+  1 nb nn nu min{argvalue,2}
+  2 nb nu v{0:}
+  3 nb
+  4 nb
+  5 nb nn nu min{argvalue,6}
+  6 nb nu v{0:}
+
+fn bsdRecv
+  li
+  ur
+  rv ssize_t
+  nr f
+  1 nb nu
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nu
+
+fn bsdRecvFrom
+  li
+  ur
+  rv ssize_t
+  nr f
+  1 nb nu
+  2 nb nn
+  3 nb nu v{0:}
+  4 nb
+  5 nb
 
 fn bsdSend
   li
   ur
-  rv int
+  rv ssize_t
   nr f
   1 nb nu
   2 nb nn nu min{argvalue,3}
@@ -2172,24 +2343,95 @@ fn bsdSend
 fn bsdSendTo
   li
   ur
-  rv int
+  rv ssize_t
   nr f
   1 nb nu
   2 nb nn nu min{argvalue,3}
   3 nb nu v{0:}
   4 nb nu
-  5 nb nn nu
-  6 nb nu v{0:}
+  5 nb
+  6 nb
 
-fn bsdRecv
+fn bsdAccept
   li
   ur
   rv int
   nr f
   1 nb nu
-  2 nb nn min{argvalue,3}
+  2 nb
+  3 nb
+
+fn bsdBind
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nn nu min{argvalue,3}
   3 nb nu v{0:}
-  4 nb nu
+
+fn bsdConnect
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nn nu
+  3 nb nu
+
+fn bsdGetPeerName
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb
+  3 nb
+
+fn bsdGetSockName
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb
+  3 nb
+
+fn bsdGetSockOpt
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nu
+  3 nb nu
+  4 nb
+  5 nb
+
+fn bsdListen
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nu
+
+fn bsdIoctl
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nu
+  3 nb
+
+fn bsdFcntl
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+  2 nb nu
+  3 nb nu
 
 fn bsdSetSockOpt
   li
@@ -2202,6 +2444,19 @@ fn bsdSetSockOpt
   4 nb nn nu min{argvalue,5}
   5 nb nu v{0:}
 
+fn bsdShutdown
+  li
+  rv int
+  nr f
+  1 nb nu
+  2 nb nu
+
+fn bsdShutdownAllSockets
+  li
+  rv int
+  nr f
+  1 nb nu
+
 fn bsdWrite
   li
   ur
@@ -2211,16 +2466,61 @@ fn bsdWrite
   2 nb nn nu min{argvalue,3}
   3 nb nu v{0:}
 
+fn bsdRead
+  li
+  ur
+  rv ssize_t
+  nr f
+  1 nb nu
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+
+fn bsdClose
+  rv int
+  nr f
+  1 nb nu
+
+fn bsdDuplicateSocket
+  li
+  ur
+  rv int
+  nr f
+  1 nb nu
+
 fn bsdInitializeDefault
   ur
   rv Result
   nr f
+
+# services/csrng.h
+fn csrngInitialize
+  ur
+  rv Result
+  nr f
+
+fn csrngExit
+  rv void
+  nr f
+
+fn csrngGetRandomBytes
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn min{argvalue,2}
+  2 nb nu v{0:}
 
 # services/fatal.h
 fn fatalSimple
   rv void
   nr t
   1 nb nu
+
+fn fatalWithType
+  rv void
+  nr f
+  1 nb nu
+  2 nb nu
 
 # services/fs.h
 fn fsInitialize
@@ -2253,6 +2553,44 @@ fn fsMountSaveData
   2 nb nu v{0:}
   3 nb nn nu
 
+fn fsMountSystemSaveData
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nn nu
+
+fn fsOpenSaveDataIterator
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+  2 nb nu
+
+fn fsOpenDataStorageByCurrentProcess
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+
+fn fsOpenDeviceOperator
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+
+fn fsOpenSdCardDetectionEventNotifier
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+
 fn fsMount_SaveData
   li
   ur
@@ -2261,6 +2599,33 @@ fn fsMount_SaveData
   1 nb nn
   2 nb nu v{0:}
   3 nb nu v{0:}
+
+fn fsMount_SystemSaveData
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+  2 nb nu v{0:}
+
+fn fsOpenFileSystem
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+  2 nb nu v{0:}
+  3 nb nu
+
+fn fsOpenFileSystemWithId
+  li
+  ur
+  rv Result
+  nr f
+  1 nb
+  2 nb nu v{0:}
+  3 nb nu
+  4 nb nn nu str
 
 fn fsFsCreateFile
   li
@@ -2420,11 +2785,100 @@ fn fsDirClose
   nr f
   1 nb nn nu
 
-# services/fsldr.c
-fn fsldrSetCurrentProcess
+fn fsStorageRead
+  li
+  ur
   rv Result
   nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn min{argvalue,4}
+  4 nb nu v{0:}
 
+fn fsStorageWrite
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn nu min{argvalue,4}
+  4 nb nu v{0:}
+
+fn fsStorageFlush
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+
+fn fsStorageSetSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+
+fn fsStorageGetSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn fsStorageClose
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn fsSaveDataIteratorRead
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+  3 nb nu v{0:}
+  4 nb
+
+fn fsSaveDataIteratorClose
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn fsEventNotifierGetEventHandle
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn fsEventNotifierClose
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+fn fsDeviceOperatorIsSdCardInserted
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn fsDeviceOperatorClose
+  li
+  rv void
+  nr f
+  1 nb nn nu
+
+# service/fsldr.h
 fn fsldrInitialize
   ur
   rv Result
@@ -2436,18 +2890,65 @@ fn fsldrExit
 
 fn fsldrOpenCodeFileSystem
   li
+  ur
   rv Result
   nr f
-  1 nb nu
-  2 nb nn nu s
+  1 nb nu v{0:}
+  2 nb nn nu str
   3 nb nn
 
 fn fsldrIsArchivedProgram
   li
   rv Result
   nr f
-  1 nb nu
+  1 nb nu v{0:}
   2 nb nn
+
+fn fsldrSetCurrentProcess
+  rv Result
+  nr f
+
+# services/fspr.h
+fn fsprInitialize
+  ur
+  rv Result
+  nr f
+
+fn fsprExit
+  rv void
+  nr f
+
+fn fsprRegisterProgram
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu
+  4 nb nn nu min{argvalue,5}
+  5 nb nu v{0:}
+  6 nb nn nu min{argvalue,7}
+  7 nb nu v{0:}
+
+fn fsprUnregisterProgram
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn fsprSetCurrentProcess
+  li
+  ur
+  rv Result
+  nr f
+
+fn fsprSetEnabledProgramVerification
+  li
+  ur
+  rv Result
+  nr f
+  1 nu
 
 # services/hid.h
 fn hidInitialize
@@ -2486,29 +2987,34 @@ fn hidScanInput
   nr f
 
 fn hidKeysHeld,hidKeysDown,hidKeysUp
+  li
   ur
   rv u64
   nr f
   1 nb nu
 
 fn hidMouseButtonsHeld,hidMouseButtonsDown,hidMouseButtonsUp
+  li
   ur
   rv u64
   nr f
 
 fn hidKeyboardModifierHeld,hidKeyboardModifierDown,hidKeyboardModifierUp
+  li
   ur
   rv bool
   nr f
   1 nb nu
 
 fn hidKeyboardHeld,hidKeyboardDown,hidKeyboardUp
+  li
   ur
   rv bool
   nr f
   1 nb nu
 
 fn hidTouchCount
+  li
   ur
   rv u32
   nr f
@@ -2520,13 +3026,106 @@ fn hidTouchRead
   1 nb nn
   2 nb nu v{0:}
 
+fn hidJoystickRead
+  li
+  rv void
+  nr f
+  1 nb nn nu
+  2 nb nu
+  3 nb nu
+
+fn hidGetHandheldMode
+  li
+  ur
+  rv bool
+  nr f
+
+fn hidSetNpadJoyAssignmentModeSingleByDefault
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+
+fn hidSetNpadJoyAssignmentModeDual
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+
+fn hidMergeSingleJoyAsDualJoy
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nu
+
+fn hidInitializeVibrationDevices
+  li
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+  3 nb nu
+  4 nb nu
+
+fn hidGetVibrationDeviceInfo
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn hidSendVibrationValue
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu
+
+fn hidGetActualVibrationValue
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn
+
+fn hidPermitVibration
+  li
+  ur
+  rv Result
+  nr f
+  1 nu
+
+fn hidIsVibrationPermitted
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn hidSendVibrationValues
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nn nu
+  3 nb nu v{0:}
+
 # services/irs.h
 fn irsInitialize
+  li
   ur
   rv Result
   nr f
 
 fn irsExit
+  li
   rv void
   nr f
 
@@ -2544,18 +3143,23 @@ fn irsGetSharedmemAddr
 
 fn irsActivateIrsensor
   li
+  ur
   rv Result
   nr f
   1 nu
 
-fn irsStopImageProcessor
+fn irsGetIrCameraHandle
+  li
+  ur
   rv Result
   nr f
-  1 nb nu v{0:}
+  1 nb nn
+  2 nb nu
 
 fn irsRunImageTransferProcessor
+  li
+  ur
   rv Result
-  nr f
   1 nb nu v{0:}
   2 nb nn nu
   3 nb nu v{0:}
@@ -2566,9 +3170,22 @@ fn irsGetImageTransferProcessorState
   rv Result
   nr f
   1 nb nu v{0:}
-  2 nb nn nu min{argvalue,3}
+  2 nb nn min{argvalue,3}
   3 nb nu v{0:}
   4 nb nn
+
+fn irsStopImageProcessor
+  li
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+fn irsSuspendImageProcessor
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
 
 fn irsGetDefaultImageTransferProcessorConfig
   li
@@ -2576,15 +3193,70 @@ fn irsGetDefaultImageTransferProcessorConfig
   nr f
   1 nb nn
 
-fn irsGetIrCameraHandle
+# services/ldr.h
+fn ldrShellInitialize,ldrDmntInitialize,ldrPmInitialize
   li
   ur
   rv Result
   nr f
-  1 nb nn
-  2 nb nu
 
-fn irsSuspendImageProcessor
+fn ldrShellExit,ldrDmntExit,ldrPmExit
+  rv void
+  nr f
+
+fn ldrShellAddTitleToLaunchQueue,ldrDmntAddTitleToLaunchQueue
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn nu
+  3 nb nu v{0:}
+
+fn ldrShellClearLaunchQueue,ldrDmntClearLaunchQueue
+  li
+  rv Result
+  nr f
+
+fn ldrDmntGetNsoInfos
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn
+  3 nb nu v{0:}
+  4 nb
+
+fn ldrPmCreateProcess
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu
+  4 nb nn
+
+fn ldrPmGetProgramInfo
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu
+  3 nb nn
+
+fn ldrPmRegisterTitle
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu
+  3 nb nn
+
+fn ldrPmUnregisterTitle
   li
   rv Result
   nr f
@@ -2597,10 +3269,11 @@ fn lrInitialize
   nr f
 
 fn lrExit
+  li
   rv void
   nr f
 
-fn lrGetLocationResolver
+fn lrOpenLocationResolver
   li
   ur
   rv Result
@@ -2608,14 +3281,14 @@ fn lrGetLocationResolver
   1 nb nu
   2 nb nn
 
-fn lrGetRegisteredLocationResolver
+fn lrOpenRegisteredLocationResolver
   li
   ur
   rv Result
   nr f
   1 nb nn
 
-fn lrLrGetProgramPath,lrLrGetUserControlPath,lrLrGetControlPath,lrLrGetDocHtmlPath,lrLrGetInfoHtmlPath,lrRegLrGetProgramPath
+fn lrLrResolveProgramPath
   li
   ur
   rv Result
@@ -2624,28 +3297,104 @@ fn lrLrGetProgramPath,lrLrGetUserControlPath,lrLrGetControlPath,lrLrGetDocHtmlPa
   2 nb nu v{0:}
   3 nb nn
 
-fn lrLrSetProgramPath,lrLrSetControlPath,lrLrSetDocHtmlPath,lrLrSetInfoHtmlPath
+fn lrLrRedirectProgramPath
   li
   ur
   rv Result
   nr f
   1 nb nn nu
   2 nb nu v{0:}
-  3 nb nn nu s
+  3 nb nn nu str
 
-fn lrLrClearOverridePaths
+fn lrLrResolveApplicationControlPath
   li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn
+
+fn lrLrResolveApplicationHtmlDocumentPath
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn
+
+fn lrLrResolveDataPath
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn
+
+fn lrLrRedirectApplicationControlPath,lrLrRedirectApplicationHtmlDocumentPath,lrLrRedirectLegalInformationPath
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn nu str
+
+fn lrLrResolveLegalInformationPath
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn
+
+fn lrLrRefresh
+  li
+  ur
   rv Result
   nr f
   1 nb nn nu
 
-# services/ns.h
-fn nsInitialize
+fn lrRegLrResolveProgramPath
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu
+  2 nb nu v{0:}
+  3 nb nn
+
+# services/nifm.h
+fn nifmInitialize
+  li
   ur
   rv Result
   nr f
 
-fn nsExit
+fn nifmExit
+  li
+  rv void
+  nr f
+
+fn nifmGetCurrentIpAddress
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+# services/ns.h
+fn nsInitialize,nsvmInitialize,nsDevInitialize
+  li
+  ur
+  rv Result
+  nr f
+
+fn nsExit,nsvmExit,nsDevExit
+  li
   rv void
   nr f
 
@@ -2656,9 +3405,36 @@ fn nsGetApplicationControlData
   nr f
   1 nb nu v{0:}
   2 nb nu v{0:}
-  3 nb nn nu
-  4 nb nu v{0:}
-  5 nb
+  3 nb nn
+
+fn nsGetTotalSpaceSize,nsGetFreeSpaceSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn
+
+fn nsvmNeedUpdateVulnerability
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn nsvmGetSafeSystemVersion
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn nsdevTerminateProcess,nsdevTerminateProgram
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
 
 # services/nv.h
 fn nvInitialize
@@ -2711,6 +3487,7 @@ fn nvConvertError
 
 # services/pl.h
 fn plInitialize
+  li
   ur
   rv Result
   nr f
@@ -2720,6 +3497,7 @@ fn plExit
   nr f
 
 fn plGetSharedmemAddr
+  li
   ur
   rv void*
   nr f
@@ -2730,7 +3508,7 @@ fn plGetSharedFontByType
   rv Result
   nr f
   1 nb nn
-  2 nb nu v{0:}
+  2 nb nu
 
 fn plGetSharedFont
   li
@@ -2743,9 +3521,14 @@ fn plGetSharedFont
   4 nb
 
 # services/pm.h
-fn pmdmntInitialize
+fn pmdmntInitialize,pminfoInitialize,pmshellInitialize
   ur
   rv Result
+  nr f
+
+fn pmdmntExit,pminfoExit,pmshellExit
+  li
+  rv void
   nr f
 
 fn pmdmntStartProcess
@@ -2783,6 +3566,237 @@ fn pmdmntEnableDebugForApplication
   rv Result
   nr f
   1 nb nn
+
+fn pminfoGetTitleId
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn pmshellLaunchProcess
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nu v{0:}
+  3 nb nu v{0:}
+  4 nb
+
+fn pmshellTerminateProcessByTitleId
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
+# services/set.h
+fn setInitialize,setsysInitialize
+  li
+  ur
+  rv Result
+  nr f
+
+fn setExit,setsysExit
+  li
+  rv void
+  nr f
+
+fn setMakeLanguage
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn
+
+fn setMakeLanguageCode
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn
+
+fn setGetSystemLanguage
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn setGetLanguageCode
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn setGetAvailableLanguageCodes
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu v{0:}
+
+fn setGetAvailableLanguageCodesCount
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn setGetRegionCode
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn setsysGetColorSetId
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn setsysSetColorSetId
+  li
+  rv Result
+  nr f
+  1 nb nu
+
+fn setsysGetSettingsItemValueSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu str
+  2 nb nn nu str
+  3 nb nn
+
+fn setsysGetSettingsItemValueSize
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn nu str
+  2 nb nn nu str
+  3 nb nn min{argvalue,4}
+  4 nb nu v{0:}
+
+fn setsysGetSerialNumber
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn setsysGetFlag
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn
+
+fn setsysSetFlag
+  li
+  rv Result
+  nr f
+  1 nb nu
+  2 nu
+
+# services/sfdnsres.h
+fn sfdnsresGetHostByName
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu
+  3 nb
+  4 nb nn nu str
+
+fn sfdnsresGetHostByAddr
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu
+  3 nb
+  4 nb nn nu
+  5 nb nu
+  6 nb nu
+
+fn sfdnsresGetHostStringError,sfdnsresGetGaiStringError
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu
+  2 nb nn min{argvalue,3}
+  3 nb nu v{0:}
+
+fn sfdnsresGetAddrInfo
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu
+  3 nb nu str
+  4 nb nu str
+  5 nb nu
+  6 nb nu v{0:}
+  7 nb nn
+
+fn sfdnsresGetNameInfo
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nn nu
+  3 nb nn nu
+  4 nb nu
+  5 nb nu
+  6 nb nu v{0:}
+  7 nb nu
+  8 nb nu v{0:}
+  9 nb nu
+
+fn sfdnsresRequestCancelHandle
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn sfdnsresCancelSocketCall
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+  2 nb nu v{0:}
+
+fn sfdnsresCancelAllSocketCalls
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nn
+
+fn sfdnsresClearDnsIpServerAddressArray
+  li
+  ur
+  rv Result
+  nr f
 
 # services/sm.h
 fn serviceIsOverride,serviceIsActive,
@@ -2877,13 +3891,44 @@ fn smAddOverrideHandle
   1 nb nu v{0:}
   2 nb nu v{0:}
 
+# services/smm.h
+fn smManagerInitialize
+  li
+  ur
+  rv Result
+  nr f
+
+fn smManagerExit
+  rv void
+  nr f
+
+fn smManagerRegisterProcess
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+  2 nb nn nu min{argvalue,3}
+  3 nb nu v{0:}
+  4 nb nn nu min{argvalue,5}
+  5 nb nu v{0:}
+
+fn smManagerUnregisterProcess
+  li
+  ur
+  rv Result
+  nr f
+  1 nb nu v{0:}
+
 # services/time.h
 fn timeInitialize
+  li
   ur
   rv Result
   nr f
 
 fn timeExit
+  li
   rv void
   nr f
 
